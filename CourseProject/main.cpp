@@ -12,8 +12,8 @@ GLuint drawTree4;
 GLuint drawTree5;
 GLuint drawTree6;
 
-const int W = 1920; // размер окна
-const int H = 1080;
+const int W = 1080; // размер окна
+const int H = 600;
 const int TW = 512; // текстуры
 const int TH = 512;
 const int NUM_TrainS = 1;
@@ -2247,16 +2247,16 @@ void special_key(int key, int x, int y)
 	switch (key)
 	{
 	case GLUT_KEY_LEFT:
-		angularSpeed += 0.005;
+		angularSpeed < 0.01 ? angularSpeed += 0.005 : angularSpeed = 0;
 		break;
 	case GLUT_KEY_RIGHT:
-		angularSpeed -= 0.005;
+		angularSpeed > -0.01 ? angularSpeed -= 0.005 : angularSpeed = 0;
 		break;
 	case GLUT_KEY_UP: 
-		speed += 0.05;
+		speed < 0.1 ? speed += 0.05 : speed = 0;
 		break;
 	case GLUT_KEY_DOWN:
-		speed -= 0.05;
+		speed > 0.1 ? speed -= 0.05 : speed = 0;
 		break;
 	case GLUT_KEY_PAGE_UP:
 		pitch+= 0.1;

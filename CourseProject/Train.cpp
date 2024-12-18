@@ -1,4 +1,4 @@
-#include "Train.h"
+﻿#include "Train.h"
 #include "glut.h"
 #include <math.h>
 
@@ -876,38 +876,80 @@ void Train::InitializeLocation(double beta)
 	glScaled(0.2, 0.2, 0.2);
 }
 
-// compute the direction and update Train center
+
+
+double fallSpeed = 0.01;  // скорость падения поезда
+double gravity = 0.001;
+double tiltSpeed = 0.05;  // скорость наклона
+
+
+
 void Train::Move(double ground[GSZ][GSZ])
 {
-	int row=0, col=0;
-	if (fabs(dirz) < 0.01 && fabs(dirx)>0.99) // if the direction is along X axis
+	int row = 0, col = 0;
+	static double savedDiry = 0;  // переменная для сохранения исходного угла наклона
+
+	if (fabs(dirz) < 0.01 && fabs(dirx) > 0.99) // если направление по оси X
 	{
-		// find column and row of cell in ground
-		row = (int) (cz+GSZ/2);
-		col = (int) (cx+GSZ/2);
-		if (dirx > 0) // moving to the right
+		// находим столбец и строку ячейки на земле
+		row = (int)(cz + GSZ / 2);
+		col = (int)(cx + GSZ / 2);
+
+		if (dirx > 0) // движемся вправо
 		{
-			if (col >= GSZ - 1) // if the Train goes out of matrix return it back to the start
-			{
-				col = 0;
-				cx = -GSZ / 2;
+			// сохраняем исходный угол наклона перед падением
+			if (savedDiry == 0) {
+				savedDiry = diry + 0.05;
+			}
+
+			if (col >= GSZ + 2) // если поезд выходит за пределы карты
+			{			
+				// поезд начинает падать
+				cy -= fallSpeed; // уменьшаем высоту поезда, имитируя падение
+				if (cy < -5) {
+					col = 0;
+					cx = -GSZ / 2; // предотвращаем, чтобы поезд не опустился ниже земли
+					cy = 1;
+					diry = savedDiry;  // восстанавливаем угол наклона
+				}
+
+				if (diry < 90) {  // плавно наклоняем поезд до 90 градусов
+					diry -= tiltSpeed; // увеличиваем угол наклона
+				}
 			}
 		}
-		else // moving to the left
+		else // движемся влево
 		{
-			if (col < 0)
+			// сохраняем исходный угол наклона перед падением
+			if (savedDiry == 0) {
+				savedDiry = diry + 0.05;
+			}
+			if (col < 0) // если поезд выходит за пределы карты
 			{
-				col = GSZ - 2;
-				cx = GSZ / 2;
-				if (ground[row][col + 1] > 0) cy = ground[row][col + 1];
-				else cy = 1;
+				// поезд начинает падать
+				cy -= fallSpeed; // уменьшаем высоту поезда, имитируя падение
+				if (cy < -2) {
+					col = 0;
+					cx = -GSZ / 2; // предотвращаем, чтобы поезд не опустился ниже земли
+					cy = 1;
+					diry = savedDiry;  // восстанавливаем угол наклона
+				}
+
+				if (diry < 90) {  // плавно наклоняем поезд до 90 градусов
+					diry -= tiltSpeed; // увеличиваем угол наклона
+				}
 			}
 		}
 	}
-	// update center of a Train
+
+	// обновляем центр поезда
 	cx += dirx * speed;
 	cz += dirz * speed;
+	fallSpeed += gravity;  // ускоряем падение с течением времени
 }
+
+
+
 
 void Train::SetSpeed(double s)
 {
